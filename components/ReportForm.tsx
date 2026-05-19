@@ -58,6 +58,28 @@ function toggle(values: string[], option: string): string[] {
     : [...values, option];
 }
 
+function getPendingReports(): SubmittedReport[] {
+  const raw = localStorage.getItem(storageKeys.pendingReports);
+  if (!raw) return [];
+
+  try {
+    return JSON.parse(raw) as SubmittedReport[];
+  } catch {
+    return [];
+  }
+}
+
+function getReportQueue(): Domain[] {
+  const raw = localStorage.getItem(storageKeys.reportQueue);
+  if (!raw) return [];
+
+  try {
+    return JSON.parse(raw) as Domain[];
+  } catch {
+    return [];
+  }
+}
+
 function buildReport(domain: Domain, state: ReportFormState): SubmittedReport {
   const base = {
     id: createId(),
@@ -365,7 +387,19 @@ export function ReportForm({ domain }: ReportFormProps) {
     if (Object.keys(nextErrors).length > 0) return;
 
     const report = buildReport(domain, answers);
-    localStorage.setItem(storageKeys.draftReport, JSON.stringify(report));
+    const pendingReports = [...getPendingReports(), report];
+    const [nextDomain, ...remainingDomains] = getReportQueue();
+
+    localStorage.setItem(storageKeys.pendingReports, JSON.stringify(pendingReports));
+    localStorage.removeItem(storageKeys.draftReport);
+
+    if (nextDomain) {
+      localStorage.setItem(storageKeys.reportQueue, JSON.stringify(remainingDomains));
+      router.push(`/report/${nextDomain}`);
+      return;
+    }
+
+    localStorage.removeItem(storageKeys.reportQueue);
     router.push("/profile");
   }
 

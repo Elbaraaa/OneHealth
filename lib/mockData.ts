@@ -2,6 +2,8 @@ import type { DashboardReport, RiskResult } from "@/lib/types";
 
 export const storageKeys = {
   draftReport: "oneHealth:draftReport",
+  pendingReports: "oneHealth:pendingReports",
+  reportQueue: "oneHealth:reportQueue",
   reports: "oneHealth:reports",
   profile: "oneHealth:profile",
   currentRiskResult: "oneHealth:currentRiskResult",

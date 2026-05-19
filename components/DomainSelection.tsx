@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
-  HeartPulse,
+  Check,
   Leaf,
   PawPrint,
   Smile,
@@ -13,6 +14,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { AppShell, AppTopBar } from "@/components/AppShell";
+import { storageKeys } from "@/lib/mockData";
 import type { Domain } from "@/lib/types";
 
 const domains: Array<{
@@ -41,8 +43,49 @@ const domains: Array<{
   },
 ];
 
+type Feeling = "good" | "sick" | null;
+
+function toggleDomain(selected: Domain[], domain: Domain): Domain[] {
+  return selected.includes(domain)
+    ? selected.filter((item) => item !== domain)
+    : [...selected, domain];
+}
+
 export function DomainSelection() {
-  const [selected, setSelected] = useState<Domain>("human");
+  const router = useRouter();
+  const [feeling, setFeeling] = useState<Feeling>(null);
+  const [selectedDomains, setSelectedDomains] = useState<Domain[]>([]);
+  const [error, setError] = useState("");
+
+  function selectFeeling(nextFeeling: Feeling) {
+    setFeeling(nextFeeling);
+    setError("");
+
+    if (nextFeeling === "sick") {
+      setSelectedDomains((current) =>
+        current.includes("human") ? current : ["human", ...current],
+      );
+    }
+  }
+
+  function toggleSelectedDomain(domain: Domain) {
+    setSelectedDomains((current) => toggleDomain(current, domain));
+    setError("");
+  }
+
+  function continueToReports() {
+    if (selectedDomains.length === 0) {
+      setError("Pick at least one thing to report.");
+      return;
+    }
+
+    const [firstDomain, ...remainingDomains] = selectedDomains;
+    localStorage.setItem(storageKeys.reportQueue, JSON.stringify(remainingDomains));
+    localStorage.removeItem(storageKeys.draftReport);
+    localStorage.removeItem(storageKeys.pendingReports);
+    localStorage.removeItem(storageKeys.currentRiskResult);
+    router.push(`/report/${firstDomain}`);
+  }
 
   return (
     <AppShell>
@@ -59,14 +102,24 @@ export function DomainSelection() {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="focus-ring grid min-h-28 place-items-center rounded-md border border-slate-300 bg-white/60 p-3 text-center text-sm font-bold text-slate-600"
+              onClick={() => selectFeeling("good")}
+              className={`focus-ring grid min-h-28 place-items-center rounded-md border p-3 text-center text-sm font-bold ${
+                feeling === "good"
+                  ? "border-public-teal bg-soft-mint text-public-teal"
+                  : "border-slate-300 bg-white/60 text-slate-600"
+              }`}
             >
               <Smile className="mb-2 size-8 text-teal-400" aria-hidden="true" />
               Feeling Good
             </button>
             <button
               type="button"
-              className="focus-ring grid min-h-28 place-items-center rounded-md border border-slate-300 bg-white/60 p-3 text-center text-sm font-bold text-slate-600"
+              onClick={() => selectFeeling("sick")}
+              className={`focus-ring grid min-h-28 place-items-center rounded-md border p-3 text-center text-sm font-bold ${
+                feeling === "sick"
+                  ? "border-public-teal bg-soft-mint text-public-teal"
+                  : "border-slate-300 bg-white/60 text-slate-600"
+              }`}
             >
               <ThermometerSun
                 className="mb-2 size-8 text-teal-400"
@@ -88,14 +141,16 @@ export function DomainSelection() {
           <div className="mt-4 space-y-2">
             {domains.map((domain) => {
               const Icon = domain.icon;
-              const isSelected = selected === domain.value;
+              const isSelected = selectedDomains.includes(domain.value);
 
               return (
                 <button
                   key={domain.value}
                   type="button"
-                  onClick={() => setSelected(domain.value)}
+                  onClick={() => toggleSelectedDomain(domain.value)}
                   className="choice-row"
+                  role="checkbox"
+                  aria-checked={isSelected}
                 >
                   <span className="grid size-10 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-700">
                     <Icon className="size-5" aria-hidden="true" />
@@ -109,24 +164,31 @@ export function DomainSelection() {
                     </span>
                   </span>
                   <span
-                    className={`grid size-5 rounded-full border ${
+                    className={`grid size-5 place-items-center rounded-sm border ${
                       isSelected
                         ? "border-public-teal bg-public-teal"
                         : "border-slate-300 bg-white"
                     }`}
                     aria-hidden="true"
-                  />
+                  >
+                    {isSelected ? <Check className="size-3 text-white" /> : null}
+                  </span>
                 </button>
               );
             })}
           </div>
+          {error ? (
+            <p className="mt-3 rounded-md bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">
+              {error}
+            </p>
+          ) : null}
         </section>
 
         <div className="mt-10">
-          <Link href={`/report/${selected}`} className="app-button">
+          <button type="button" onClick={continueToReports} className="app-button">
             Continue to Report
             <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
+          </button>
         </div>
 
         <Link

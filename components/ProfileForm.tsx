@@ -74,12 +74,26 @@ function buildProfile(state: ProfileFormState): Profile {
 export function ProfileForm() {
   const router = useRouter();
   const [choice, setChoice] = useState<ProfileChoice>("undecided");
-  const [draftReport, setDraftReport] = useState<SubmittedReport | null>(null);
+  const [draftReports, setDraftReports] = useState<SubmittedReport[]>([]);
   const [hasLoadedDraft, setHasLoadedDraft] = useState(false);
   const [profile, setProfile] = useState<ProfileFormState>(initialProfile);
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
+    const rawPendingReports = localStorage.getItem(storageKeys.pendingReports);
+    if (rawPendingReports) {
+      try {
+        const parsedPendingReports = JSON.parse(rawPendingReports) as SubmittedReport[];
+        setDraftReports(parsedPendingReports);
+      } catch {
+        setDraftReports([]);
+      } finally {
+        setHasLoadedDraft(true);
+      }
+
+      return;
+    }
+
     const rawDraft = localStorage.getItem(storageKeys.draftReport);
     if (!rawDraft) {
       setHasLoadedDraft(true);
@@ -87,37 +101,53 @@ export function ProfileForm() {
     }
 
     try {
-      setDraftReport(JSON.parse(rawDraft) as SubmittedReport);
+      setDraftReports([JSON.parse(rawDraft) as SubmittedReport]);
     } catch {
-      setDraftReport(null);
+      setDraftReports([]);
     } finally {
       setHasLoadedDraft(true);
     }
   }, []);
 
   function completeSubmission(profileToUse?: Profile) {
-    if (!draftReport) {
+    if (draftReports.length === 0) {
       setError("No report draft was found. Please start a new report.");
       return;
     }
 
-    const score = calculateRiskScore(draftReport, profileToUse);
-    const group = classifyRisk(score);
-    const result: RiskResult = {
-      reportId: draftReport.id,
-      domain: draftReport.domain,
-      score,
-      group,
-      explanation: generateRiskExplanation(draftReport, profileToUse),
-      mitigationSteps: generateMitigationSteps(draftReport, group),
-      createdAt: new Date().toISOString(),
-    };
-    const dashboardReport: DashboardReport = {
-      ...draftReport,
-      riskScore: score,
-      riskGroup: group,
-    };
+    const results = draftReports.map((report) => {
+      const score = calculateRiskScore(report, profileToUse);
+      const group = classifyRisk(score);
+
+      return {
+        report,
+        riskResult: {
+          reportId: report.id,
+          domain: report.domain,
+          score,
+          group,
+          explanation: generateRiskExplanation(report, profileToUse),
+          mitigationSteps: generateMitigationSteps(report, group),
+          createdAt: new Date().toISOString(),
+        } satisfies RiskResult,
+      };
+    });
+    const dashboardReports: DashboardReport[] = results.map(({ report, riskResult }) => ({
+      ...report,
+      riskScore: riskResult.score,
+      riskGroup: riskResult.group,
+    }));
+    const result = results.reduce((highest, current) =>
+      current.riskResult.score > highest.riskResult.score ? current : highest,
+    ).riskResult;
     const reports = getStoredReports();
+
+    if (draftReports.length > 1) {
+      result.explanation = [
+        `You submitted ${draftReports.length} report areas. This result shows the highest current awareness score.`,
+        ...result.explanation,
+      ];
+    }
 
     if (profileToUse) {
       localStorage.setItem(storageKeys.profile, JSON.stringify(profileToUse));
@@ -125,10 +155,12 @@ export function ProfileForm() {
 
     localStorage.setItem(
       storageKeys.reports,
-      JSON.stringify([dashboardReport, ...reports]),
+      JSON.stringify([...dashboardReports, ...reports]),
     );
     localStorage.setItem(storageKeys.currentRiskResult, JSON.stringify(result));
     localStorage.removeItem(storageKeys.draftReport);
+    localStorage.removeItem(storageKeys.pendingReports);
+    localStorage.removeItem(storageKeys.reportQueue);
     router.push("/risk-result");
   }
 
@@ -170,7 +202,7 @@ export function ProfileForm() {
     );
   }
 
-  if (!draftReport) {
+  if (draftReports.length === 0) {
     return (
       <div className="rounded-md border border-slate-200 bg-white p-5 text-center shadow-sm">
         <h1 className="text-xl font-bold text-ink">No report in progress</h1>
@@ -200,6 +232,9 @@ export function ProfileForm() {
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
           You can continue anonymously. Profiles do not require a legal name or exact address.
+          {draftReports.length > 1
+            ? ` You have ${draftReports.length} report areas ready to submit.`
+            : ""}
         </p>
       </div>
 
