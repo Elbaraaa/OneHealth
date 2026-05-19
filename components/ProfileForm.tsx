@@ -161,8 +161,8 @@ export function ProfileForm() {
 
   if (!hasLoadedDraft) {
     return (
-      <div className="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 text-center shadow-soft">
-        <h1 className="text-2xl font-bold text-ink">Preparing profile step</h1>
+      <div className="rounded-md border border-slate-200 bg-white p-5 text-center shadow-sm">
+        <h1 className="text-xl font-bold text-ink">Preparing profile step</h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
           Checking the report saved on this device.
         </p>
@@ -172,8 +172,8 @@ export function ProfileForm() {
 
   if (!draftReport) {
     return (
-      <div className="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 text-center shadow-soft">
-        <h1 className="text-2xl font-bold text-ink">No report in progress</h1>
+      <div className="rounded-md border border-slate-200 bg-white p-5 text-center shadow-sm">
+        <h1 className="text-xl font-bold text-ink">No report in progress</h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
           Start a report first, then return to the optional profile step.
         </p>
@@ -189,13 +189,13 @@ export function ProfileForm() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl rounded-lg border border-slate-200 bg-white p-5 shadow-soft sm:p-8">
+    <section className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
       <div className="border-b border-slate-200 pb-6">
         <div className="mb-4 inline-flex items-center gap-2 rounded-md bg-soft-sky px-3 py-2 text-xs font-semibold text-public-blue">
           <Shield className="size-4" aria-hidden="true" />
           Optional profile
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+        <h1 className="text-xl font-extrabold tracking-tight text-ink">
           Would you like to create a profile to personalize your risk awareness?
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -203,7 +203,7 @@ export function ProfileForm() {
         </p>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="mt-6 grid gap-3">
         <button
           type="button"
           onClick={() => {
@@ -238,7 +238,7 @@ export function ProfileForm() {
 
       {choice === "yes" ? (
         <form onSubmit={handleProfileSubmit} className="mt-7 space-y-5">
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-4">
             <label className="space-y-2 text-sm font-semibold text-ink">
               Display name optional
               <input

@@ -1,9 +1,13 @@
 import { ProfileForm } from "@/components/ProfileForm";
+import { AppShell, AppTopBar } from "@/components/AppShell";
 
 export default function ProfilePage() {
   return (
-    <main className="px-4 py-10 sm:px-6 lg:px-8">
-      <ProfileForm />
-    </main>
+    <AppShell>
+      <AppTopBar title="Health Monitor" backHref="/report" />
+      <div className="px-4 py-5">
+        <ProfileForm />
+      </div>
+    </AppShell>
   );
 }

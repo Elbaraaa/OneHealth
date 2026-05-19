@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, MapPinned, TrendingUp } from "lucide-react";
+import { AppShell, AppTopBar } from "@/components/AppShell";
 import { DashboardSummary } from "@/components/DashboardSummary";
 import { RecentReportsTable } from "@/components/RecentReportsTable";
 import { mockReports, storageKeys } from "@/lib/mockData";
@@ -81,13 +82,15 @@ export default function DashboardPage() {
   );
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <AppShell>
+      <AppTopBar title="Local Map" backHref="/risk-result" />
+      <main className="px-4 py-5">
+      <section className="mb-5 flex flex-col gap-4">
         <div>
           <p className="text-sm font-bold uppercase tracking-wide text-public-teal">
             Community overview
           </p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-ink sm:text-4xl">
+          <h1 className="mt-2 text-2xl font-black tracking-tight text-ink">
             One Health Dashboard
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
@@ -140,6 +143,7 @@ export default function DashboardPage() {
       <section className="mt-6">
         <RecentReportsTable reports={reports} />
       </section>
-    </main>
+      </main>
+    </AppShell>
   );
 }

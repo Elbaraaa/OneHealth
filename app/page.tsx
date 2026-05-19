@@ -1,80 +1,81 @@
 import Link from "next/link";
-import { ArrowRight, HeartPulse, Leaf, PawPrint, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Globe2,
+  Heart,
+  LockKeyhole,
+  Shield,
+  Sparkles,
+} from "lucide-react";
+import { AppShell, AppTopBar } from "@/components/AppShell";
 
 export default function HomePage() {
   return (
-    <main className="mx-auto grid min-h-[calc(100vh-73px)] max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-      <section>
-        <div className="mb-6 inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-bold text-public-teal shadow-sm ring-1 ring-teal-900/10">
-          <ShieldCheck className="size-4" aria-hidden="true" />
-          Private by default
+    <AppShell flat>
+      <AppTopBar brand />
+
+      <section className="flex min-h-[calc(100dvh-84px)] flex-col px-5 pb-8 pt-10 text-center">
+        <div className="mx-auto grid size-32 place-items-center rounded-lg border border-teal-900/10 bg-white/70 shadow-[0_16px_42px_rgba(0,121,107,0.10)]">
+          <div className="relative grid size-20 place-items-center">
+            <div className="absolute inset-2 rotate-45 rounded-[28px] bg-gradient-to-br from-teal-300 via-public-teal to-public-blue shadow-lg" />
+            <div className="absolute left-3 top-5 size-4 rounded-full bg-warm-gold" />
+            <div className="absolute right-3 top-3 size-3 rounded-full bg-cyan-300" />
+            <Shield className="relative z-10 size-7 text-white" aria-hidden="true" />
+            <Sparkles
+              className="absolute bottom-4 right-5 z-10 size-4 text-white"
+              aria-hidden="true"
+            />
+          </div>
         </div>
-        <h1 className="max-w-3xl text-4xl font-black tracking-tight text-ink sm:text-5xl">
-          Welcome to One Health Reporting
+
+        <h1 className="mt-8 text-2xl font-extrabold tracking-tight text-ink">
+          Welcome!
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-          Report human, animal, or environmental health concerns using lightweight community signals. The app classifies possible local risk and offers supportive mitigation guidance without claiming a diagnosis.
+        <p className="mx-auto mt-3 max-w-[270px] text-base leading-6 text-slate-600">
+          Help keep people, animals, and the earth safe.
         </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <p className="mx-auto mt-3 max-w-[285px] text-sm leading-5 text-slate-600">
+          Tell us about any health worries. It is safe and private.
+        </p>
+
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs font-bold">
+          <span className="inline-flex items-center gap-1 rounded-md bg-teal-100 px-2 py-1 text-teal-700">
+            <LockKeyhole className="size-3" aria-hidden="true" />
+            Private
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-md bg-public-teal px-2 py-1 text-white">
+            <Heart className="size-3" aria-hidden="true" />
+            Caring
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-md bg-[#bd6847] px-2 py-1 text-white">
+            <Globe2 className="size-3" aria-hidden="true" />
+            Global
+          </span>
+        </div>
+
+        <div className="mt-7">
           <Link
             href="/report"
-            className="focus-ring inline-flex items-center justify-center gap-2 rounded-md bg-public-teal px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800"
+            className="app-button"
           >
-            Start a Report
+            Start
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
+        </div>
+
+        <p className="mt-4 text-[10px] font-medium text-slate-500">
+          Takes about 2 minutes
+        </p>
+
+        <div className="mt-auto pt-8">
           <Link
             href="/dashboard"
-            className="focus-ring inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-ink transition hover:border-public-blue hover:text-public-blue"
+            className="focus-ring text-xs font-semibold text-public-teal"
           >
-            View Dashboard
+            View local dashboard
           </Link>
         </div>
       </section>
-
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
-        <div className="grid gap-4">
-          {[
-            {
-              title: "Human health",
-              text: "Symptoms and recent exposure context.",
-              icon: HeartPulse,
-              className: "bg-rose-50 text-rose-700",
-            },
-            {
-              title: "Animal health",
-              text: "Pet, livestock, and wildlife concerns.",
-              icon: PawPrint,
-              className: "bg-soft-sky text-public-blue",
-            },
-            {
-              title: "Environmental health",
-              text: "Air, water, odor, wildlife, and spill signals.",
-              icon: Leaf,
-              className: "bg-soft-mint text-public-teal",
-            },
-          ].map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <article
-                key={item.title}
-                className="flex items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4"
-              >
-                <span className={`grid size-12 place-items-center rounded-lg ${item.className}`}>
-                  <Icon className="size-6" aria-hidden="true" />
-                </span>
-                <div>
-                  <h2 className="font-bold text-ink">{item.title}</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
-                    {item.text}
-                  </p>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-    </main>
+    </AppShell>
   );
 }
